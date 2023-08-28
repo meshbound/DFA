@@ -1,6 +1,10 @@
+# Generated folders
 bin/
 build/
 vendor/
+
+# Vim
+.swp
 
 # MacOS
 

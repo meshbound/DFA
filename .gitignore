@@ -4,7 +4,7 @@ build/
 vendor/
 
 # Vim
-.swp
+*.swp
 
 # MacOS
 

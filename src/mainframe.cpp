@@ -1,29 +1,33 @@
 #include "mainframe.h"
+#include "canvas.h"
+#include "state.h"
 #include <wx/wx.h>
 #include <wx/menu.h>
 
 MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 
-	wxPanel* mainPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(800, 400));
-	mainPanel->SetBackgroundColour(wxColor(200, 0, 0));
+	//wxPanel* mainPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(800, 400));
+	//mainPanel->SetBackgroundColour(wxColor(200, 0, 0));
+	
+	canvas = new Canvas(this, wxID_ANY, wxDefaultPosition, wxSize(800, 400));	
 
 	wxPanel* controlPanelAlways = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1, 50));
 	controlPanelAlways->SetBackgroundColour(wxColor(0, 200, 0));
 
-	wxPanel* controlPanelEdit = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1, 50));
+	controlPanelEdit = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1, 50));
 	controlPanelEdit->SetBackgroundColour(wxColor(0, 100, 0));
 
-	wxPanel* controlPanelRun = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1, 50));
+	controlPanelRun = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1, 50));
 	controlPanelRun->SetBackgroundColour(wxColor(0, 50, 0));
 
 	wxPanel* inspectorPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(100, -1));
 	inspectorPanel->SetBackgroundColour(wxColor(0, 0, 200));
 
 	wxBoxSizer* mainVerticalSizer = new wxBoxSizer(wxVERTICAL);
-	mainVerticalSizer->Add(mainPanel, 1, wxEXPAND);
-	wxBoxSizer* controlPanelSplitSizer = new wxBoxSizer(wxHORIZONTAL);
+	mainVerticalSizer->Add(canvas, 1, wxEXPAND);
+	controlPanelSplitSizer = new wxBoxSizer(wxHORIZONTAL);
 	controlPanelSplitSizer->Add(controlPanelAlways, 0, wxEXPAND);
-	controlPanelSplitSizer->Add(controlPanelEdit, 1, wxEXPAND); //controlPanelEdit->Hide();
+	controlPanelSplitSizer->Add(controlPanelEdit, 1, wxEXPAND); // controlPanelEdit->Hide();
 	controlPanelSplitSizer->Add(controlPanelRun, 1, wxEXPAND); controlPanelRun->Hide();
 	mainVerticalSizer->Add(controlPanelSplitSizer, 0, wxEXPAND);
 
@@ -34,14 +38,14 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	this->SetSizerAndFit(mainHorizontalSizer);
 
 	// mainPanel
-	wxBoxSizer* mainPanelSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer* canvasSizer = new wxBoxSizer(wxVERTICAL);
 
-	wxStaticText* modeText = new wxStaticText(mainPanel, wxID_ANY, "modeText");
+	stateText = new wxStaticText(canvas, wxID_ANY, "Editing"); 
 	wxFont modeTextFont = wxFont(wxFontInfo(20));
-	modeText->SetFont(modeTextFont);
-	mainPanelSizer->Add(modeText, 1, wxALIGN_CENTER_HORIZONTAL);
+	stateText->SetFont(modeTextFont);
+	canvasSizer->Add(stateText, 1, wxALIGN_CENTER_HORIZONTAL);
 
-	mainPanel->SetSizerAndFit(mainPanelSizer);
+	canvas->SetSizerAndFit(canvasSizer);
 
 	// inspectorPanel
 	wxBoxSizer* inspectorPanelSizer = new wxBoxSizer(wxVERTICAL);
@@ -57,7 +61,8 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	
 	wxBoxSizer* controlPanelAlwaysSizer = new wxBoxSizer(wxHORIZONTAL);
 
-	wxButton* modeSwapButton = new wxButton(controlPanelAlways, wxID_ANY, "otherMode", wxDefaultPosition, wxSize(80, 20));
+	modeSwapButton = new wxButton(controlPanelAlways, wxID_ANY, "Run", wxDefaultPosition, wxSize(80, 20));
+	modeSwapButton->Bind(wxEVT_BUTTON, &MainFrame::OnOtherModeBtn, this);
 	//wxFont inspectingTextFont = wxFont(wxFontInfo(16));
 	//inspectingText->SetFont(inspectingTextFont);
 	controlPanelAlwaysSizer->Add(modeSwapButton, 0, wxALIGN_CENTER_VERTICAL | wxALL, 10);
@@ -98,7 +103,28 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 
 	wxRadioBox* radioBox = new wxRadioBox(panel, wxID_ANY, "RadioBox", wxPoint(150, 450), wxDefaultSize, 3, choices);
 	*/
+}
 
-
-
+void MainFrame::OnOtherModeBtn(wxCommandEvent& evt){
+	std::cout << "Clicked OtherMode Button!" << std::endl;
+	
+	switch (currentState)
+	{
+		case editing:
+			currentState = running;
+			controlPanelEdit->Hide();
+			controlPanelRun->Show();
+			controlPanelSplitSizer->Layout();
+			stateText->SetLabelText("Running");
+			modeSwapButton->SetLabelText("Edit");
+			break;
+		case running:
+			currentState = editing;
+			controlPanelEdit->Show();
+			controlPanelRun->Hide();
+			controlPanelSplitSizer->Layout();
+			stateText->SetLabelText("Editing");
+			modeSwapButton->SetLabelText("Run");
+			break;
+	}
 }

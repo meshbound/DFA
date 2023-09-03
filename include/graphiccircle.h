@@ -1,5 +1,5 @@
-#ifndef GRAPHICSOBJECT_H
-#define GRAPHICSOBJECT_H
+#ifndef GRAPHICCIRCLE_H
+#define GRAPHICCIRCLE_H
 
 #include <wx/wx.h>
 

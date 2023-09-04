@@ -9,7 +9,7 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	//wxPanel* mainPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(800, 400));
 	//mainPanel->SetBackgroundColour(wxColor(200, 0, 0));
 	
-	canvas = new Canvas(this, wxID_ANY, wxDefaultPosition, wxSize(800, 400));	
+	Canvas* canvas = new Canvas(this, wxID_ANY, wxDefaultPosition, wxSize(800, 400));	
 
 	wxPanel* controlPanelAlways = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1, 50));
 	controlPanelAlways->SetBackgroundColour(wxColor(0, 200, 0));

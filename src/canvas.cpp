@@ -1,11 +1,14 @@
-#include "graphiccircle.h"
 #include "canvas.h"
+#include "graphiccircle.h"
+#include "mainframe.h"
+#include "state.h"
 #include <ostream>
 #include <wx/graphics.h>
 #include <wx/dcbuffer.h>
 #include <string>
 
-Canvas::Canvas(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size): wxWindow(parent, id, pos, size){
+Canvas::Canvas(MainFrame* mainframe, wxWindowID id, const wxPoint& pos, const wxSize& size): wxWindow(mainframe, id, pos, size){
+	this->mainframe = mainframe;
 	this->graphicCircles = new std::list<GraphicCircle>();
 	this->selected = nullptr;	
 	this->SetBackgroundStyle(wxBG_STYLE_PAINT);
@@ -72,8 +75,19 @@ void Canvas::OnMouseDown(wxMouseEvent& evt){
 	}
 	else{
 		std::cout << "Hit circle: " << it->text << std::endl;
-		selected = &*it;
-		dragInitPos = evt.GetPosition();
+		std::list<GraphicCircle>::iterator fwdIt = graphicCircles->begin();
+	       	while (&*fwdIt != &*it) fwdIt++;
+		//std::cout << fwdIt->text << std::endl; 
+		if (mainframe->currentState == State::removing){
+			graphicCircles->erase(fwdIt);
+		}
+		else{
+			graphicCircles->push_front(*fwdIt);
+			graphicCircles->erase(fwdIt);
+			selected = &*it;
+		}
+		this->Refresh();
+		lastMousePos = evt.GetPosition();
 	}
 	// once we have the selected node:
 	// ALWAYS show info in inspector
@@ -86,15 +100,17 @@ void Canvas::OnMouseUp(wxMouseEvent& evt){
 }
 
 void Canvas::OnMouseMove(wxMouseEvent& evt){
-	std::cout << "OnMouseMove: " << evt.m_x << " " << evt.m_y << std::endl;
+	//std::cout << "OnMouseMove: " << evt.m_x << " " << evt.m_y << std::endl;
 	if (selected != nullptr)
 	{
-		wxPoint2DDouble delta = evt.GetPosition() - dragInitPos;
+		wxPoint2DDouble delta = evt.GetPosition() - lastMousePos;
 		wxAffineMatrix2D inv = selected->transform;
 		inv.Invert();
-		delta = inv.TransformPoint(delta);
-		selected->transform.Translate(dragInitPos.m_x + delta.m_x,dragInitPos.m_y + delta.m_y);
+		delta = inv.TransformDistance(delta);
+		selected->transform.Translate(delta.m_x, delta.m_y);
 		this->Refresh();
+
+		lastMousePos = evt.GetPosition();
 	}
 }
 
@@ -104,5 +120,5 @@ void Canvas::OnMouseLeave(wxMouseEvent& evt){
 }
 
 void Canvas::FinishDrag(){
-
+	selected = nullptr;
 }

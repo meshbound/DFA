@@ -4,6 +4,8 @@
 enum State : short
 {
 	editing = 0,
+	adding,
+	removing,
 	running
 };
 

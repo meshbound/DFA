@@ -73,9 +73,11 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 
 	wxBoxSizer* controlPanelEditSizer = new wxBoxSizer(wxHORIZONTAL);
 
+	wxButton* editModeButton = new wxButton(controlPanelEdit, wxID_ANY, "Remove", wxDefaultPosition, wxSize(80, 20));
 	wxButton* clearButton = new wxButton(controlPanelEdit, wxID_ANY, "Clear", wxDefaultPosition, wxSize(80, 20));
 	//wxFont inspectingTextFont = wxFont(wxFontInfo(16));
 	//inspectingText->SetFont(inspectingTextFont);
+	controlPanelEditSizer->Add(editModeButton, 0, wxALIGN_CENTER_VERTICAL | wxALL, 10); // use checkboxes instead?
 	controlPanelEditSizer->Add(clearButton, 0, wxALIGN_CENTER_VERTICAL | wxALL, 10);
 
 	controlPanelEdit->SetSizerAndFit(controlPanelEditSizer);
@@ -108,23 +110,20 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 void MainFrame::OnOtherModeBtn(wxCommandEvent& evt){
 	std::cout << "Clicked OtherMode Button!" << std::endl;
 	
-	switch (currentState)
-	{
-		case editing:
-			currentState = running;
-			controlPanelEdit->Hide();
-			controlPanelRun->Show();
-			controlPanelSplitSizer->Layout();
-			stateText->SetLabelText("Running");
-			modeSwapButton->SetLabelText("Edit");
-			break;
-		case running:
-			currentState = editing;
-			controlPanelEdit->Show();
-			controlPanelRun->Hide();
-			controlPanelSplitSizer->Layout();
-			stateText->SetLabelText("Editing");
-			modeSwapButton->SetLabelText("Run");
-			break;
+	if (currentState >= State::editing && currentState < State::running){ // editing
+		currentState = running;
+		controlPanelEdit->Hide();
+		controlPanelRun->Show();
+		controlPanelSplitSizer->Layout();
+		stateText->SetLabelText("Running");
+		modeSwapButton->SetLabelText("Edit");
+	}
+	else if (currentState >= running){ // running
+		currentState = editing;
+		controlPanelEdit->Show();
+		controlPanelRun->Hide();
+		controlPanelSplitSizer->Layout();
+		stateText->SetLabelText("Editing");
+		modeSwapButton->SetLabelText("Run");
 	}
 }

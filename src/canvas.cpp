@@ -72,6 +72,10 @@ void Canvas::OnMouseDown(wxMouseEvent& evt){
 	
 	if (it == graphicCircles->rend()){
 		std::cout << "Did not hit any circles" << std::endl;
+		if (mainframe->currentState == State::adding){
+			wxPoint2DDouble clickPos = evt.GetPosition();
+			AddCircle(this->FromDIP(50), clickPos.m_x, clickPos.m_y, *wxRED, "New Node");
+		}
 	}
 	else{
 		std::cout << "Hit circle: " << it->text << std::endl;
@@ -82,9 +86,9 @@ void Canvas::OnMouseDown(wxMouseEvent& evt){
 			graphicCircles->erase(fwdIt);
 		}
 		else{
-			graphicCircles->push_front(*fwdIt);
+			graphicCircles->push_back(*fwdIt);
 			graphicCircles->erase(fwdIt);
-			selected = &*it;
+			selected = &graphicCircles->back();
 		}
 		this->Refresh();
 		lastMousePos = evt.GetPosition();

@@ -22,8 +22,12 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 
 	wxPanel* inspectorPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(100, -1));
 	inspectorPanel->SetBackgroundColour(wxColor(0, 0, 200));
+	
+	wxPanel* canvasInfoPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(100, -1));
+	canvasInfoPanel->SetBackgroundColour(wxColor(0, 0, 200));
 
 	wxBoxSizer* mainVerticalSizer = new wxBoxSizer(wxVERTICAL);
+	mainVerticalSizer->Add(canvasInfoPanel, 0, wxEXPAND);
 	mainVerticalSizer->Add(canvas, 1, wxEXPAND);
 	controlPanelSplitSizer = new wxBoxSizer(wxHORIZONTAL);
 	controlPanelSplitSizer->Add(controlPanelAlways, 0, wxEXPAND);
@@ -36,16 +40,16 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	mainHorizontalSizer->Add(inspectorPanel, 0, wxEXPAND);
 
 	this->SetSizerAndFit(mainHorizontalSizer);
+	
+	// canvasInfoPanel
+	wxBoxSizer* canvasInfoPanelSizer = new wxBoxSizer(wxHORIZONTAL);
 
-	// mainPanel
-	wxBoxSizer* canvasSizer = new wxBoxSizer(wxVERTICAL);
-
-	stateText = new wxStaticText(canvas, wxID_ANY, "Editing"); 
+	stateText = new wxStaticText(canvasInfoPanel, wxID_ANY, "Editing"); 
 	wxFont modeTextFont = wxFont(wxFontInfo(20));
 	stateText->SetFont(modeTextFont);
-	canvasSizer->Add(stateText, 1, wxALIGN_CENTER_HORIZONTAL);
+	canvasInfoPanelSizer->Add(stateText, 1, wxALIGN_CENTER_VERTICAL);
 
-	canvas->SetSizerAndFit(canvasSizer);
+	canvasInfoPanel->SetSizerAndFit(canvasInfoPanelSizer);
 
 	// inspectorPanel
 	wxBoxSizer* inspectorPanelSizer = new wxBoxSizer(wxVERTICAL);
@@ -56,6 +60,8 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	inspectorPanelSizer->Add(inspectingText, 1, wxALIGN_CENTER_HORIZONTAL | wxLEFT | wxRIGHT, 10);
 
 	inspectorPanel->SetSizerAndFit(inspectorPanelSizer);
+	
+	// topPanel
 
 	// controlPanelAlways
 	

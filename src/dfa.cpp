@@ -26,6 +26,7 @@ bool DFA::Init(std::string* input)
 	dfaIter->node = graph->GetEntry();
 	this->inputIndex = 0;
 	this->input = input;
+	return true;
 }
 
 DFAIter* DFA::Next()

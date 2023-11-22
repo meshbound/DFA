@@ -12,7 +12,7 @@ public:
 	bool Init(std::string* input);
 	DFAIter* Next();
 private:
-	int inputIndex;
+	unsigned long inputIndex;
 	DFAIter* dfaIter;
 	std::string* input;
 	Graph* graph;

@@ -9,7 +9,7 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 	//wxPanel* mainPanel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(800, 400));
 	//mainPanel->SetBackgroundColour(wxColor(200, 0, 0));
 	
-	Canvas* canvas = new Canvas(this, wxID_ANY, wxDefaultPosition, wxSize(800, 400));	
+	canvas = new Canvas(&state, this, wxID_ANY, wxDefaultPosition, wxSize(800, 400));	
 
 	wxPanel* controlPanelAlways = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxSize(-1, 50));
 	controlPanelAlways->SetBackgroundColour(wxColor(0, 200, 0));
@@ -79,8 +79,10 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 
 	wxBoxSizer* controlPanelEditSizer = new wxBoxSizer(wxHORIZONTAL);
 
-	wxButton* editModeButton = new wxButton(controlPanelEdit, wxID_ANY, "Remove", wxDefaultPosition, wxSize(80, 20));
+	editModeButton = new wxButton(controlPanelEdit, wxID_ANY, "Add", wxDefaultPosition, wxSize(80, 20));
 	wxButton* clearButton = new wxButton(controlPanelEdit, wxID_ANY, "Clear", wxDefaultPosition, wxSize(80, 20));
+	editModeButton->Bind(wxEVT_BUTTON, &MainFrame::OnEditModeBtn, this);
+	clearButton->Bind(wxEVT_BUTTON, &MainFrame::OnClearBtn, this);
 	//wxFont inspectingTextFont = wxFont(wxFontInfo(16));
 	//inspectingText->SetFont(inspectingTextFont);
 	controlPanelEditSizer->Add(editModeButton, 0, wxALIGN_CENTER_VERTICAL | wxALL, 10); // use checkboxes instead?
@@ -114,22 +116,43 @@ MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) 
 }
 
 void MainFrame::OnOtherModeBtn(wxCommandEvent& evt){
-	std::cout << "Clicked OtherMode Button!" << std::endl;
+	std::cout << "Clicked OtherMode button!" << std::endl;
 	
-	if (currentState >= State::editing && currentState < State::running){ // editing
-		currentState = running;
+	if (state >= State::editing && state < State::running){ // editing
+		state = State::running;
 		controlPanelEdit->Hide();
 		controlPanelRun->Show();
 		controlPanelSplitSizer->Layout();
 		stateText->SetLabelText("Running");
 		modeSwapButton->SetLabelText("Edit");
-	}
-	else if (currentState >= running){ // running
-		currentState = editing;
+	}else if (state >= State::running){ // running
+		state = State::editing;
 		controlPanelEdit->Show();
 		controlPanelRun->Hide();
 		controlPanelSplitSizer->Layout();
 		stateText->SetLabelText("Editing");
 		modeSwapButton->SetLabelText("Run");
 	}
+}
+
+void MainFrame::OnEditModeBtn(wxCommandEvent& evt){
+	std::cout << "Clicked EditMode button!" << std::endl;
+	if (state == State::editing){
+		state = State::adding;
+		stateText->SetLabelText("Adding");
+		editModeButton->SetLabelText("Remove");
+	}else if (state == State::adding){
+		state = State::removing;
+		stateText->SetLabelText("Removing");
+		editModeButton->SetLabelText("Edit");
+	}else if (state == State::removing){
+		state = State::editing;
+		stateText->SetLabelText("Editing");
+		editModeButton->SetLabelText("Add");
+	}
+}
+
+void MainFrame::OnClearBtn(wxCommandEvent& evt){
+	std::cout << "Clicked Clear button!" << std::endl;
+	(*canvas).Clear();
 }

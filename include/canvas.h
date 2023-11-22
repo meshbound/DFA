@@ -2,17 +2,18 @@
 #define CANVAS_H
 
 #include "graphiccircle.h"
-#include "mainframe.h"
+#include "state.h"
 #include <wx/wx.h>
 #include <list>
 #include <string>
 
 class Canvas: public wxWindow {
 public:
-	Canvas(MainFrame* mainframe, wxWindowID id, const wxPoint& pos, const wxSize& size);
+	Canvas(State* state, wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size);
 	virtual ~Canvas(){delete graphicCircles;}
+	void Clear();
 private:
-	MainFrame* mainframe;
+	State* state;
 	std::list<GraphicCircle>* graphicCircles;
 	GraphicCircle* selected;
 	wxPoint2DDouble lastMousePos;

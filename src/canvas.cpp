@@ -1,14 +1,13 @@
 #include "canvas.h"
 #include "graphiccircle.h"
-#include "mainframe.h"
 #include "state.h"
 #include <ostream>
 #include <wx/graphics.h>
 #include <wx/dcbuffer.h>
 #include <string>
 
-Canvas::Canvas(MainFrame* mainframe, wxWindowID id, const wxPoint& pos, const wxSize& size): wxWindow(mainframe, id, pos, size){
-	this->mainframe = mainframe;
+Canvas::Canvas(State* state, wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size): wxWindow(parent, id, pos, size){
+	this->state = state;
 	this->graphicCircles = new std::list<GraphicCircle>();
 	this->selected = nullptr;	
 	this->SetBackgroundStyle(wxBG_STYLE_PAINT);
@@ -72,7 +71,7 @@ void Canvas::OnMouseDown(wxMouseEvent& evt){
 	
 	if (it == graphicCircles->rend()){
 		std::cout << "Did not hit any circles" << std::endl;
-		if (mainframe->currentState == State::adding){
+		if (*state == State::adding){
 			wxPoint2DDouble clickPos = evt.GetPosition();
 			AddCircle(this->FromDIP(50), clickPos.m_x, clickPos.m_y, *wxRED, "New Node");
 		}
@@ -82,7 +81,7 @@ void Canvas::OnMouseDown(wxMouseEvent& evt){
 		std::list<GraphicCircle>::iterator fwdIt = graphicCircles->begin();
 	       	while (&*fwdIt != &*it) fwdIt++;
 		//std::cout << fwdIt->text << std::endl; 
-		if (mainframe->currentState == State::removing){
+		if (*state == State::removing){
 			graphicCircles->erase(fwdIt);
 		}
 		else{
@@ -125,4 +124,8 @@ void Canvas::OnMouseLeave(wxMouseEvent& evt){
 
 void Canvas::FinishDrag(){
 	selected = nullptr;
+}
+
+void Canvas::Clear(){
+	std::cout << "Cleared canvas!" << std::endl;	
 }

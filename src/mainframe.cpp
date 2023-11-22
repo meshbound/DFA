@@ -154,5 +154,10 @@ void MainFrame::OnEditModeBtn(wxCommandEvent& evt){
 
 void MainFrame::OnClearBtn(wxCommandEvent& evt){
 	std::cout << "Clicked Clear button!" << std::endl;
-	(*canvas).Clear();
+	canvas->Clear();
 }
+
+/* 
+ * once we enter the running state we request the contents of the canvas
+ * and reconstruct as the DFA representation
+ */

@@ -127,5 +127,7 @@ void Canvas::FinishDrag(){
 }
 
 void Canvas::Clear(){
-	std::cout << "Cleared canvas!" << std::endl;	
+	graphicCircles->clear();
+	this->Refresh();
+	std::cout << "Cleared canvas!" << std::endl;
 }

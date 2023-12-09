@@ -9,7 +9,8 @@
 Canvas::Canvas(State* state, wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size): wxWindow(parent, id, pos, size){
 	this->state = state;
 	this->graphicCircles = new std::list<GraphicCircle>();
-	this->selected = nullptr;	
+	this->lastSelected = nullptr;
+	this->isDragging = false;	
 	this->SetBackgroundStyle(wxBG_STYLE_PAINT);
 
 	this->Bind(wxEVT_PAINT, &Canvas::OnPaint, this);
@@ -61,6 +62,10 @@ void Canvas::OnPaint(wxPaintEvent& evt){
 
 void Canvas::OnMouseDown(wxMouseEvent& evt){
 	std::cout << "OnMouseDown: " << evt.m_x << " " << evt.m_y << std::endl;
+	
+	isDragging = *state != State::adding;
+	lastMousePos = evt.GetPosition();
+
 	std::list<GraphicCircle>::reverse_iterator it = std::find_if(graphicCircles->rbegin(), graphicCircles->rend(), [evt](const GraphicCircle& circle){
 		wxPoint2DDouble clickPos = evt.GetPosition();
 		wxAffineMatrix2D inv = circle.transform;
@@ -87,7 +92,7 @@ void Canvas::OnMouseDown(wxMouseEvent& evt){
 		else{
 			graphicCircles->push_back(*fwdIt);
 			graphicCircles->erase(fwdIt);
-			selected = &graphicCircles->back();
+			lastSelected = &graphicCircles->back();
 		}
 		this->Refresh();
 		lastMousePos = evt.GetPosition();
@@ -104,16 +109,34 @@ void Canvas::OnMouseUp(wxMouseEvent& evt){
 
 void Canvas::OnMouseMove(wxMouseEvent& evt){
 	//std::cout << "OnMouseMove: " << evt.m_x << " " << evt.m_y << std::endl;
-	if (selected != nullptr)
+	
+	if (isDragging)
 	{
-		wxPoint2DDouble delta = evt.GetPosition() - lastMousePos;
-		wxAffineMatrix2D inv = selected->transform;
-		inv.Invert();
-		delta = inv.TransformDistance(delta);
-		selected->transform.Translate(delta.m_x, delta.m_y);
-		this->Refresh();
-
-		lastMousePos = evt.GetPosition();
+		if (lastSelected != nullptr){
+			wxPoint2DDouble delta = evt.GetPosition() - lastMousePos;
+			wxAffineMatrix2D inv = lastSelected->transform;
+			inv.Invert();
+			delta = inv.TransformDistance(delta);
+			lastSelected->transform.Translate(delta.m_x, delta.m_y);
+			this->Refresh();
+			lastMousePos = evt.GetPosition();
+		}
+		else
+		{
+			// move everything together
+			std::list<GraphicCircle>::iterator it;
+			for (it = graphicCircles->begin(); it != graphicCircles->end(); ++it){	
+				wxPoint2DDouble delta = evt.GetPosition() - lastMousePos;
+				wxAffineMatrix2D inv = it->transform;
+				inv.Invert();
+				delta = inv.TransformDistance(delta);
+				it->transform.Translate(delta.m_x, delta.m_y);
+				//std::cout << delta.m_x << "," << delta.m_y << std::endl;
+			}
+			this->Refresh();
+			lastMousePos = evt.GetPosition();
+	
+		}
 	}
 }
 
@@ -123,7 +146,8 @@ void Canvas::OnMouseLeave(wxMouseEvent& evt){
 }
 
 void Canvas::FinishDrag(){
-	selected = nullptr;
+	isDragging = false;
+	lastSelected = nullptr;
 }
 
 void Canvas::Clear(){

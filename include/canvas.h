@@ -10,13 +10,14 @@
 class Canvas: public wxWindow {
 public:
 	Canvas(State* state, wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size);
-	virtual ~Canvas(){delete graphicCircles;}
+	virtual ~Canvas(){delete graphicCircles; delete state;}
 	void Clear();
 private:
 	State* state;
 	std::list<GraphicCircle>* graphicCircles;
-	GraphicCircle* selected;
+	GraphicCircle* lastSelected;
 	wxPoint2DDouble lastMousePos;
+	bool isDragging;
 	void AddCircle(int radius, int cenX, int cenY, wxColor color, const std::string& text);
 	void OnPaint(wxPaintEvent& evt);
 	void OnMouseDown(wxMouseEvent& evt);
